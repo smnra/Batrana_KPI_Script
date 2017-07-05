@@ -1,0 +1,522 @@
+<?xml encoding="utf-8" version="NSNv1.0"?>
+<root>
+	<Data>
+		<group1>
+			<WCDMA_DAY>
+				<ResultDisplay>
+					<Display0>
+						<Chart/>
+						<reporting/>
+						<thresholds/>
+						<GIS>
+							<data/>
+						</GIS>
+						<Misc/>
+					</Display0>
+				</ResultDisplay>
+				<Body>
+					<line0>SELECT</line0>
+					<line1>(CASE</line1>
+					<line2>WHEN cellres.city = &apos;Baoji&apos; THEN &apos;宝鸡&apos;</line2>
+					<line3>WHEN cellres.city = &apos;Xianyang&apos; THEN &apos;咸阳&apos;</line3>
+					<line4>WHEN cellres.city = &apos;Tongchuan&apos; THEN &apos;铜川&apos;</line4>
+					<line5>WHEN cellres.city = &apos;Hanzhong&apos; THEN &apos;汉中&apos;</line5>
+					<line6>WHEN cellres.city = &apos;Yulin&apos; THEN &apos;榆林&apos;</line6>
+					<line7>WHEN cellres.city = &apos;Yanan&apos; THEN &apos;延安&apos;</line7>
+					<line8>WHEN cellres.city = &apos;Shangluo&apos; THEN &apos;商洛&apos;</line8>
+					<line9>WHEN cellres.city = &apos;Other&apos; THEN &apos;其他&apos;</line9>
+					<line10>ELSE NULL END) as &quot;地市&quot;,</line10>
+					<line11/>
+					<line12>cellres.PERIOD_START_TIME AS &quot;日期&quot;,</line12>
+					<line13>servlev.RRC建立成功率 AS &quot;RRC连接建立成功率(%)&quot;,</line13>
+					<line14>servlev.语音rab建立成功率 AS &quot;电路域RAB建立成功率(%)&quot;,</line14>
+					<line15>servlev.分组rab建立成功率 AS &quot;分组域RAB建立成功率(%)&quot;,</line15>
+					<line16>servlev.语音业务掉话率 AS &quot;电路域业务掉话率(%)&quot;,</line16>
+					<line17>servlev.分组业务掉线率 AS &quot;分组域业务掉话率(%)&quot;,</line17>
+					<line18>softho.小区软切换成功率 AS &quot;软切换成功率(%)&quot;,</line18>
+					<line19>softho.软切换比例 AS &quot;软切换比例(%)&quot;,</line19>
+					<line20>intsysho.同频硬切换成功率 AS &quot;同频硬切换成功率(%)&quot;,</line20>
+					<line21>intsysho.小区异频切换成功率 AS &quot;RNC异频硬切换成功率(%)&quot;,</line21>
+					<line22>cellres.小区上行平均rtwp AS &quot;RTWP平均值(dBm)&quot;,</line22>
+					<line23>servlev.小区寻呼拥塞率 AS &quot;小区寻呼拥塞率(%)&quot;,</line23>
+					<line24>traffic.语音含切话务量 AS &quot;语音(ERL)&quot;,</line24>
+					<line25>celltp.数据下行MB AS &quot;数据下行(MB)&quot;,</line25>
+					<line26>celltp.数据上行MB AS &quot;数据上行(MB)&quot;</line26>
+					<line27>FROM</line27>
+					<line28>(SELECT</line28>
+					<line29>-- c.wcel_rnc_id AS RNC_ID,</line29>
+					<line30>c.city AS CITY,</line30>
+					<line31>To_Date(To_Char(cellres.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line31>
+					<line32>Round(Avg(10 * Log(10, (((0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_0 / 10)) / 10) * cellres.PRXTOT_DENOM_0 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_1 / 10)) / 10) * cellres.PRXTOT_DENOM_1 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_2 / 10)) / 10) * cellres.PRXTOT_DENOM_2 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_3 / 10)) / 10) * cellres.PRXTOT_DENOM_3 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_4 / 10)) / 10) * cellres.PRXTOT_DENOM_4) / Decode(cellres.PRXTOT_DENOM_0 + cellres.PRXTOT_DENOM_1 + cellres.PRXTOT_DENOM_2 + cellres.PRXTOT_DENOM_3 + cellres.PRXTOT_DENOM_4, 0, Null, cellres.PRXTOT_DENOM_0 + cellres.PRXTOT_DENOM_1 + cellres.PRXTOT_DENOM_2 + cellres.PRXTOT_DENOM_3 + cellres.PRXTOT_DENOM_4) + decode( (Power(10,(hsdpa.HSUPA_UL_PWR_AVG / 10)) / 1000 * hsdpa.HSUPA_UL_PWR_AVG) / Decode(hsdpa.HSUPA_UL_PWR_AVG, 0, Null, hsdpa.HSUPA_UL_PWR_AVG),null,0, (Power(10,(hsdpa.HSUPA_UL_PWR_AVG / 10)) / 1000 * hsdpa.HSUPA_UL_PWR_AVG) / Decode(hsdpa.HSUPA_UL_PWR_AVG, 0, Null</line32>
+					<line33>, hsdpa.HSUPA_UL_PWR_AVG)) ) / 0.001))),8) AS 小区上行平均RTWP</line33>
+					<line34/>
+					<line35>From</line35>
+					<line36>NOKRWW_PS_CELLRES_WCEL_DAY cellres</line36>
+					<line37/>
+					<line38>LEFT JOIN</line38>
+					<line39>NOKRWW_PS_HSDPAW_WCEL_DAY hsdpa</line39>
+					<line40>ON cellres.period_start_time = hsdpa.period_start_time</line40>
+					<line41>--AND cellres.RNC_ID = hsdpa.RNC_ID</line41>
+					<line42>--AND cellres.WBTS_ID = hsdpa.WBTS_ID</line42>
+					<line43>AND cellres.WCEL_ID = hsdpa.WCEL_ID</line43>
+					<line44>AND hsdpa.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line44>
+					<line45>AND hsdpa.period_start_time &lt; To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line45>
+					<line46/>
+					<line47>LEFT JOIN</line47>
+					<line48>C_W_CUSTOM c</line48>
+					<line49>ON c.wcel_objid = cellres.wcel_id</line49>
+					<line50/>
+					<line51>WHERE</line51>
+					<line52>cellres.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line52>
+					<line53>AND cellres.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line53>
+					<line54>AND C.CITY IS NOT NULL</line54>
+					<line55/>
+					<line56>GROUP BY</line56>
+					<line57>--c.wcel_rnc_id ,</line57>
+					<line58>c.city ,</line58>
+					<line59>To_Date(To_Char(cellres.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line59>
+					<line60/>
+					<line61/>
+					<line62>) cellres,</line62>
+					<line63/>
+					<line64/>
+					<line65/>
+					<line66/>
+					<line67/>
+					<line68>(SELECT</line68>
+					<line69>-- c.wcel_rnc_id AS RNC_ID,</line69>
+					<line70>c.city AS CITY,</line70>
+					<line71>To_Date(To_Char(intsysho.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line71>
+					<line72/>
+					<line73>Round(decode(sum(intsysho.inter_hho_att_rt+intsysho.inter_hho_att_nrt),0, Null,</line73>
+					<line74>    (sum(intsysho.succ_inter_hho_att_rt+intsysho.succ_inter_hho_att_nrt)/</line74>
+					<line75>    sum(intsysho.inter_hho_att_rt+intsysho.inter_hho_att_nrt)))*100,4) As 小区异频切换成功率,</line75>
+					<line76/>
+					<line77>Round(decode(sum(intsysho.hho_att_caused_sho_incap_rt+intsysho.immed_hho_csd_sho_incap_rt+</line77>
+					<line78>    intsysho.hho_att_caused_sho_incap_nrt+intsysho.immed_hho_csd_sho_incap_nrt),0,Null,</line78>
+					<line79>    (sum(intsysho.succ_hho_caused_sho_incap_rt+intsysho.succ_hho_sho_incap_nrt)/</line79>
+					<line80>    sum(intsysho.hho_att_caused_sho_incap_rt+intsysho.immed_hho_csd_sho_incap_rt+</line80>
+					<line81>    intsysho.hho_att_caused_sho_incap_nrt+intsysho.immed_hho_csd_sho_incap_nrt)))*100,4) As 同频硬切换成功率</line81>
+					<line82/>
+					<line83>  </line83>
+					<line84>    </line84>
+					<line85>From</line85>
+					<line86>Nokrww_Ps_Intsysho_Wcel_Day intsysho</line86>
+					<line87/>
+					<line88>LEFT JOIN</line88>
+					<line89>C_W_CUSTOM c</line89>
+					<line90>ON c.wcel_objid = intsysho.wcel_id</line90>
+					<line91/>
+					<line92/>
+					<line93>WHERE</line93>
+					<line94>intsysho.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line94>
+					<line95>AND intsysho.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line95>
+					<line96>AND C.CITY IS NOT NULL</line96>
+					<line97/>
+					<line98>GROUP BY</line98>
+					<line99>--c.wcel_rnc_id ,</line99>
+					<line100>c.city ,</line100>
+					<line101>To_Date(To_Char(intsysho.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line101>
+					<line102/>
+					<line103>) intsysho,</line103>
+					<line104/>
+					<line105/>
+					<line106/>
+					<line107/>
+					<line108/>
+					<line109/>
+					<line110>(SELECT</line110>
+					<line111>-- c.wcel_rnc_id AS RNC_ID,</line111>
+					<line112>c.city AS CITY,</line112>
+					<line113>To_Date(To_Char(servlev.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line113>
+					<line114>Round(Decode(Sum(servlev.RRC_CONN_STP_ATT + servlev.RRC_CONN_SETUP_COMP_AFT_DIR</line114>
+					<line115>- servlev.RRC_CONN_STP_REJ_EMERG_CALL - servlev.RRC_CONN_ACC_REL_CELL_RESEL -</line115>
+					<line116>servlev.RRC_CONN_SETUP_ATT_REPEAT + rrc.CELL_FACH_STATE_CELL_PCH_INA +</line116>
+					<line117>rrc.CELL_DCH_STATE_TO_CELL_PCH), 0, Null, Sum(servlev.RRC_CONN_ACC_COMP +</line117>
+					<line118>servlev.RRC_CON_SETUP_COMP_DIRECTED + rrc.CELL_FACH_STATE_CELL_PCH_INA +</line118>
+					<line119>rrc.CELL_DCH_STATE_TO_CELL_PCH) / (Sum(servlev.RRC_CONN_STP_ATT +</line119>
+					<line120>servlev.RRC_CONN_SETUP_COMP_AFT_DIR - servlev.RRC_CONN_STP_REJ_EMERG_CALL -</line120>
+					<line121>servlev.RRC_CONN_ACC_REL_CELL_RESEL - servlev.RRC_CONN_SETUP_ATT_REPEAT +</line121>
+					<line122>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH)))*100, 4) As RRC建立成功率,</line122>
+					<line123/>
+					<line124>--Sum(servlev.RRC_CONN_ACC_COMP + servlev.RRC_CON_SETUP_COMP_DIRECTED +</line124>
+					<line125>--    rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH) As X_RRC建立成功率,</line125>
+					<line126/>
+					<line127>--Sum(servlev.RRC_CONN_STP_ATT + servlev.RRC_CONN_SETUP_COMP_AFT_DIR -</line127>
+					<line128>--    servlev.RRC_CONN_STP_REJ_EMERG_CALL - servlev.RRC_CONN_ACC_REL_CELL_RESEL -</line128>
+					<line129>--    servlev.RRC_CONN_SETUP_ATT_REPEAT + rrc.CELL_FACH_STATE_CELL_PCH_INA +</line129>
+					<line130>--    rrc.CELL_DCH_STATE_TO_CELL_PCH) As Y_RRC建立成功率,</line130>
+					<line131/>
+					<line132>Round(Decode(Sum(servlev.RAB_STP_ATT_PS_CONV + servlev.RAB_STP_ATT_PS_STREA +</line132>
+					<line133>servlev.RAB_STP_ATT_PS_INTER + servlev.RAB_STP_ATT_PS_BACKG +</line133>
+					<line134>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH), 0,</line134>
+					<line135>Null, Sum(servlev.RAB_ACC_COMP_PS_CONV + servlev.RAB_ACC_COMP_PS_STREA +</line135>
+					<line136>servlev.RAB_ACC_COMP_PS_INTER + servlev.RAB_ACC_COMP_PS_BACKG +</line136>
+					<line137>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH) /</line137>
+					<line138>(Sum(servlev.RAB_STP_ATT_PS_CONV + servlev.RAB_STP_ATT_PS_STREA +</line138>
+					<line139>servlev.RAB_STP_ATT_PS_INTER + servlev.RAB_STP_ATT_PS_BACKG +</line139>
+					<line140>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH)))*100, 4) As 分组RAB建立成功率,</line140>
+					<line141/>
+					<line142>--Sum(servlev.RAB_ACC_COMP_PS_CONV + servlev.RAB_ACC_COMP_PS_STREA +</line142>
+					<line143>--    servlev.RAB_ACC_COMP_PS_INTER + servlev.RAB_ACC_COMP_PS_BACKG +</line143>
+					<line144>--    rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH) As X_分组RAB建立成功率,</line144>
+					<line145/>
+					<line146>--Sum(servlev.RAB_STP_ATT_PS_CONV + servlev.RAB_STP_ATT_PS_STREA +</line146>
+					<line147>--    servlev.RAB_STP_ATT_PS_INTER + servlev.RAB_STP_ATT_PS_BACKG +</line147>
+					<line148>--    rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH) As Y_分组RAB建立成功率,</line148>
+					<line149/>
+					<line150>Round(Decode(Sum(servlev.RAB_ACT_COMP_PS_CONV + servlev.RAB_ACT_COMP_PS_STREA +</line150>
+					<line151>servlev.RAB_ACT_COMP_PS_INTER + servlev.RAB_ACT_COMP_PS_BACKG +</line151>
+					<line152>servlev.RAB_ACT_REL_PS_CONV_SRNC + servlev.RAB_ACT_REL_PS_CONV_P_EMP +</line152>
+					<line153>servlev.RAB_ACT_REL_PS_STREA_SRNC + servlev.RAB_ACT_REL_PS_STREA_P_EMP +</line153>
+					<line154>servlev.RAB_ACT_REL_PS_INTER_SRNC + servlev.RAB_ACT_REL_PS_BACKG_SRNC +</line154>
+					<line155>servlev.RAB_ACT_FAIL_PS_CONV_IU + servlev.RAB_ACT_FAIL_PS_CONV_RADIO +</line155>
+					<line156>servlev.RAB_ACT_FAIL_PS_CONV_BTS + servlev.RAB_ACT_FAIL_PS_CONV_IUR +</line156>
+					<line157>servlev.RAB_ACT_FAIL_PS_CONV_RNC + servlev.RAB_ACT_FAIL_PS_CONV_UE +</line157>
+					<line158>servlev.RAB_ACT_FAIL_PS_STREA_IU + servlev.RAB_ACT_FAIL_PS_STREA_RADIO +</line158>
+					<line159>servlev.RAB_ACT_FAIL_PS_STREA_BTS + servlev.RAB_ACT_FAIL_PS_STREA_IUR +</line159>
+					<line160>servlev.RAB_ACT_FAIL_PS_STREA_RNC + servlev.RAB_ACT_FAIL_PS_STREA_UE +</line160>
+					<line161>servlev.RAB_ACT_FAIL_PS_INTER_IU + servlev.RAB_ACT_FAIL_PS_INTER_RADIO +</line161>
+					<line162>servlev.RAB_ACT_FAIL_PS_INTER_BTS + servlev.RAB_ACT_FAIL_PS_INTER_IUR +</line162>
+					<line163>servlev.RAB_ACT_FAIL_PS_INTER_RNC + servlev.RAB_ACT_FAIL_PS_INTER_UE +</line163>
+					<line164>servlev.RAB_ACT_FAIL_PS_BACKG_IU + servlev.RAB_ACT_FAIL_PS_BACKG_RADIO +</line164>
+					<line165>servlev.RAB_ACT_FAIL_PS_BACKG_BTS + servlev.RAB_ACT_FAIL_PS_BACKG_IUR +</line165>
+					<line166>servlev.RAB_ACT_FAIL_PS_BACKG_RNC + servlev.RAB_ACT_FAIL_PS_BACKG_UE +</line166>
+					<line167>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH), 0,</line167>
+					<line168>Null, Sum(servlev.RAB_ACT_FAIL_PS_CONV_IU + servlev.RAB_ACT_FAIL_PS_CONV_RADIO +</line168>
+					<line169>servlev.RAB_ACT_FAIL_PS_CONV_BTS + servlev.RAB_ACT_FAIL_PS_CONV_IUR +</line169>
+					<line170>servlev.RAB_ACT_FAIL_PS_CONV_RNC + servlev.RAB_ACT_FAIL_PS_CONV_UE +</line170>
+					<line171>servlev.RAB_ACT_FAIL_PS_STREA_IU + servlev.RAB_ACT_FAIL_PS_STREA_RADIO +</line171>
+					<line172>servlev.RAB_ACT_FAIL_PS_STREA_BTS + servlev.RAB_ACT_FAIL_PS_STREA_IUR +</line172>
+					<line173>servlev.RAB_ACT_FAIL_PS_STREA_RNC + servlev.RAB_ACT_FAIL_PS_STREA_UE +</line173>
+					<line174>servlev.RAB_ACT_FAIL_PS_INTER_IU + servlev.RAB_ACT_FAIL_PS_INTER_RADIO +</line174>
+					<line175>servlev.RAB_ACT_FAIL_PS_INTER_BTS + servlev.RAB_ACT_FAIL_PS_INTER_IUR +</line175>
+					<line176>servlev.RAB_ACT_FAIL_PS_INTER_RNC + servlev.RAB_ACT_FAIL_PS_INTER_UE +</line176>
+					<line177>servlev.RAB_ACT_FAIL_PS_BACKG_IU + servlev.RAB_ACT_FAIL_PS_BACKG_RADIO +</line177>
+					<line178>servlev.RAB_ACT_FAIL_PS_BACKG_BTS + servlev.RAB_ACT_FAIL_PS_BACKG_IUR +</line178>
+					<line179>servlev.RAB_ACT_FAIL_PS_BACKG_RNC + servlev.RAB_ACT_FAIL_PS_BACKG_UE -</line179>
+					<line180>servlev.RAB_ACT_FAIL_PS_INT_PCH - servlev.RAB_ACT_FAIL_PS_BACKG_PCH) /</line180>
+					<line181>Sum(servlev.RAB_ACT_COMP_PS_CONV + servlev.RAB_ACT_COMP_PS_STREA +</line181>
+					<line182>servlev.RAB_ACT_COMP_PS_INTER + servlev.RAB_ACT_COMP_PS_BACKG +</line182>
+					<line183>servlev.RAB_ACT_REL_PS_CONV_SRNC + servlev.RAB_ACT_REL_PS_CONV_P_EMP +</line183>
+					<line184>servlev.RAB_ACT_REL_PS_STREA_SRNC + servlev.RAB_ACT_REL_PS_STREA_P_EMP +</line184>
+					<line185>servlev.RAB_ACT_REL_PS_INTER_SRNC + servlev.RAB_ACT_REL_PS_BACKG_SRNC +</line185>
+					<line186>servlev.RAB_ACT_FAIL_PS_CONV_IU + servlev.RAB_ACT_FAIL_PS_CONV_RADIO +</line186>
+					<line187>servlev.RAB_ACT_FAIL_PS_CONV_BTS + servlev.RAB_ACT_FAIL_PS_CONV_IUR +</line187>
+					<line188>servlev.RAB_ACT_FAIL_PS_CONV_RNC + servlev.RAB_ACT_FAIL_PS_CONV_UE +</line188>
+					<line189>servlev.RAB_ACT_FAIL_PS_STREA_IU + servlev.RAB_ACT_FAIL_PS_STREA_RADIO +</line189>
+					<line190>servlev.RAB_ACT_FAIL_PS_STREA_BTS + servlev.RAB_ACT_FAIL_PS_STREA_IUR +</line190>
+					<line191>servlev.RAB_ACT_FAIL_PS_STREA_RNC + servlev.RAB_ACT_FAIL_PS_STREA_UE +</line191>
+					<line192>servlev.RAB_ACT_FAIL_PS_INTER_IU + servlev.RAB_ACT_FAIL_PS_INTER_RADIO +</line192>
+					<line193>servlev.RAB_ACT_FAIL_PS_INTER_BTS + servlev.RAB_ACT_FAIL_PS_INTER_IUR +</line193>
+					<line194>servlev.RAB_ACT_FAIL_PS_INTER_RNC + servlev.RAB_ACT_FAIL_PS_INTER_UE +</line194>
+					<line195>servlev.RAB_ACT_FAIL_PS_BACKG_IU + servlev.RAB_ACT_FAIL_PS_BACKG_RADIO +</line195>
+					<line196>servlev.RAB_ACT_FAIL_PS_BACKG_BTS + servlev.RAB_ACT_FAIL_PS_BACKG_IUR +</line196>
+					<line197>servlev.RAB_ACT_FAIL_PS_BACKG_RNC + servlev.RAB_ACT_FAIL_PS_BACKG_UE +</line197>
+					<line198>rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH))*100, 4) As 分组业务掉线率,</line198>
+					<line199/>
+					<line200>--Sum(servlev.RAB_ACT_FAIL_PS_CONV_IU + servlev.RAB_ACT_FAIL_PS_CONV_RADIO +</line200>
+					<line201>--  servlev.RAB_ACT_FAIL_PS_CONV_BTS + servlev.RAB_ACT_FAIL_PS_CONV_IUR +</line201>
+					<line202>--  servlev.RAB_ACT_FAIL_PS_CONV_RNC + servlev.RAB_ACT_FAIL_PS_CONV_UE +</line202>
+					<line203>--  servlev.RAB_ACT_FAIL_PS_STREA_IU + servlev.RAB_ACT_FAIL_PS_STREA_RADIO +</line203>
+					<line204>--  servlev.RAB_ACT_FAIL_PS_STREA_BTS + servlev.RAB_ACT_FAIL_PS_STREA_IUR +</line204>
+					<line205>--  servlev.RAB_ACT_FAIL_PS_STREA_RNC + servlev.RAB_ACT_FAIL_PS_STREA_UE +</line205>
+					<line206>--  servlev.RAB_ACT_FAIL_PS_INTER_IU + servlev.RAB_ACT_FAIL_PS_INTER_RADIO +</line206>
+					<line207>--  servlev.RAB_ACT_FAIL_PS_INTER_BTS + servlev.RAB_ACT_FAIL_PS_INTER_IUR +</line207>
+					<line208>--  servlev.RAB_ACT_FAIL_PS_INTER_RNC + servlev.RAB_ACT_FAIL_PS_INTER_UE +</line208>
+					<line209>--  servlev.RAB_ACT_FAIL_PS_BACKG_IU + servlev.RAB_ACT_FAIL_PS_BACKG_RADIO +</line209>
+					<line210>--  servlev.RAB_ACT_FAIL_PS_BACKG_BTS + servlev.RAB_ACT_FAIL_PS_BACKG_IUR +</line210>
+					<line211>--  servlev.RAB_ACT_FAIL_PS_BACKG_RNC + servlev.RAB_ACT_FAIL_PS_BACKG_UE -</line211>
+					<line212>--  servlev.RAB_ACT_FAIL_PS_INT_PCH - servlev.RAB_ACT_FAIL_PS_BACKG_PCH) As X_分组业务掉线率,</line212>
+					<line213/>
+					<line214>--Sum(servlev.RAB_ACT_COMP_PS_CONV + servlev.RAB_ACT_COMP_PS_STREA +</line214>
+					<line215>--  servlev.RAB_ACT_COMP_PS_INTER + servlev.RAB_ACT_COMP_PS_BACKG +</line215>
+					<line216>--  servlev.RAB_ACT_REL_PS_CONV_SRNC + servlev.RAB_ACT_REL_PS_CONV_P_EMP +</line216>
+					<line217>--  servlev.RAB_ACT_REL_PS_STREA_SRNC + servlev.RAB_ACT_REL_PS_STREA_P_EMP +</line217>
+					<line218>--  servlev.RAB_ACT_REL_PS_INTER_SRNC + servlev.RAB_ACT_REL_PS_BACKG_SRNC +</line218>
+					<line219>--  servlev.RAB_ACT_FAIL_PS_CONV_IU + servlev.RAB_ACT_FAIL_PS_CONV_RADIO +</line219>
+					<line220>--  servlev.RAB_ACT_FAIL_PS_CONV_BTS + servlev.RAB_ACT_FAIL_PS_CONV_IUR +</line220>
+					<line221>--  servlev.RAB_ACT_FAIL_PS_CONV_RNC + servlev.RAB_ACT_FAIL_PS_CONV_UE +</line221>
+					<line222>--  servlev.RAB_ACT_FAIL_PS_STREA_IU + servlev.RAB_ACT_FAIL_PS_STREA_RADIO +</line222>
+					<line223>--  servlev.RAB_ACT_FAIL_PS_STREA_BTS + servlev.RAB_ACT_FAIL_PS_STREA_IUR +</line223>
+					<line224>--  servlev.RAB_ACT_FAIL_PS_STREA_RNC + servlev.RAB_ACT_FAIL_PS_STREA_UE +</line224>
+					<line225>--  servlev.RAB_ACT_FAIL_PS_INTER_IU + servlev.RAB_ACT_FAIL_PS_INTER_RADIO +</line225>
+					<line226>--  servlev.RAB_ACT_FAIL_PS_INTER_BTS + servlev.RAB_ACT_FAIL_PS_INTER_IUR +</line226>
+					<line227>--  servlev.RAB_ACT_FAIL_PS_INTER_RNC + servlev.RAB_ACT_FAIL_PS_INTER_UE +</line227>
+					<line228>--  servlev.RAB_ACT_FAIL_PS_BACKG_IU + servlev.RAB_ACT_FAIL_PS_BACKG_RADIO +</line228>
+					<line229>--  servlev.RAB_ACT_FAIL_PS_BACKG_BTS + servlev.RAB_ACT_FAIL_PS_BACKG_IUR +</line229>
+					<line230>--  servlev.RAB_ACT_FAIL_PS_BACKG_RNC + servlev.RAB_ACT_FAIL_PS_BACKG_UE +</line230>
+					<line231>--  rrc.CELL_FACH_STATE_CELL_PCH_INA + rrc.CELL_DCH_STATE_TO_CELL_PCH) As Y_分组业务掉线率,</line231>
+					<line232/>
+					<line233/>
+					<line234/>
+					<line235>Round(Decode(Sum(servlev.RAB_ACT_COMP_CS_VOICE +</line235>
+					<line236>servlev.RAB_ACT_REL_CS_VOICE_SRNC + servlev.RAB_ACT_REL_CS_VOICE_P_EMP +</line236>
+					<line237>servlev.RAB_ACT_FAIL_CS_VOICE_IU + servlev.RAB_ACT_FAIL_CS_VOICE_RADIO +</line237>
+					<line238>servlev.RAB_ACT_FAIL_CS_VOICE_BTS + servlev.RAB_ACT_FAIL_CS_VOICE_IUR +</line238>
+					<line239>servlev.RAB_ACT_FAIL_CS_VOICE_RNC + servlev.RAB_ACT_FAIL_CS_VOICE_UE),</line239>
+					<line240>0, Null, Sum(servlev.RAB_ACT_FAIL_CS_VOICE_IU +</line240>
+					<line241>servlev.RAB_ACT_FAIL_CS_VOICE_RADIO + servlev.RAB_ACT_FAIL_CS_VOICE_BTS +</line241>
+					<line242>servlev.RAB_ACT_FAIL_CS_VOICE_IUR + servlev.RAB_ACT_FAIL_CS_VOICE_RNC +</line242>
+					<line243>servlev.RAB_ACT_FAIL_CS_VOICE_UE) / Sum(servlev.RAB_ACT_COMP_CS_VOICE +</line243>
+					<line244>servlev.RAB_ACT_REL_CS_VOICE_SRNC + servlev.RAB_ACT_REL_CS_VOICE_P_EMP +</line244>
+					<line245>servlev.RAB_ACT_FAIL_CS_VOICE_IU + servlev.RAB_ACT_FAIL_CS_VOICE_RADIO +</line245>
+					<line246>servlev.RAB_ACT_FAIL_CS_VOICE_BTS + servlev.RAB_ACT_FAIL_CS_VOICE_IUR +</line246>
+					<line247>servlev.RAB_ACT_FAIL_CS_VOICE_RNC + servlev.RAB_ACT_FAIL_CS_VOICE_UE))*100, 4) As 语音业务掉话率,</line247>
+					<line248/>
+					<line249>--Sum(servlev.RAB_ACT_FAIL_CS_VOICE_IU + servlev.RAB_ACT_FAIL_CS_VOICE_RADIO +</line249>
+					<line250>--    servlev.RAB_ACT_FAIL_CS_VOICE_BTS + servlev.RAB_ACT_FAIL_CS_VOICE_IUR +</line250>
+					<line251>--    servlev.RAB_ACT_FAIL_CS_VOICE_RNC + servlev.RAB_ACT_FAIL_CS_VOICE_UE) As X_语音业务掉话率,</line251>
+					<line252/>
+					<line253>--Sum(servlev.RAB_ACT_COMP_CS_VOICE + servlev.RAB_ACT_REL_CS_VOICE_SRNC +</line253>
+					<line254>--    servlev.RAB_ACT_REL_CS_VOICE_P_EMP + servlev.RAB_ACT_FAIL_CS_VOICE_IU +</line254>
+					<line255>--    servlev.RAB_ACT_FAIL_CS_VOICE_RADIO + servlev.RAB_ACT_FAIL_CS_VOICE_BTS +</line255>
+					<line256>--    servlev.RAB_ACT_FAIL_CS_VOICE_IUR + servlev.RAB_ACT_FAIL_CS_VOICE_RNC +</line256>
+					<line257>--  servlev.RAB_ACT_FAIL_CS_VOICE_UE) As Y_语音业务掉话率,</line257>
+					<line258/>
+					<line259>Round(Decode(Sum(servlev.RAB_STP_ATT_CS_VOICE + servlev.RAB_STP_ATT_CS_CONV +</line259>
+					<line260>servlev.RAB_STP_ATT_CS_STREA + servlev.RAB_STP_ATT_PS_CONV +</line260>
+					<line261>servlev.RAB_STP_ATT_PS_STREA + servlev.RAB_STP_ATT_PS_INTER +</line261>
+					<line262>servlev.RAB_STP_ATT_PS_BACKG), 0, Null, Sum(servlev.RAB_STP_FAIL_CS_VOICE_FROZBS</line262>
+					<line263>+ servlev.RAB_STP_FAIL_CS_CONV_FROZBS + servlev.RAB_STP_FAIL_CS_STREA_FROZBS +</line263>
+					<line264>servlev.RAB_STP_FAIL_PS_CONV_FROZBS + servlev.RAB_STP_FAIL_PS_STREA_FROZBS +</line264>
+					<line265>servlev.RAB_STP_FAIL_PS_INTER_FROZBS + servlev.RAB_STP_FAIL_PS_BACKG_FROZBS +</line265>
+					<line266>servlev.RAB_STP_FAIL_CS_VOICE_RNC + servlev.RAB_STP_FAIL_CS_CONV_RNC +</line266>
+					<line267>servlev.RAB_STP_FAIL_CS_STREA_RNC + servlev.RAB_STP_FAIL_PS_CONV_RNC +</line267>
+					<line268>servlev.RAB_STP_FAIL_PS_STREA_RNC + servlev.RAB_STP_FAIL_PS_INTER_RNC +</line268>
+					<line269>servlev.RAB_STP_FAIL_PS_BACKG_RNC + servlev.RAB_STP_FAIL_CS_VOICE_AC +</line269>
+					<line270>servlev.RAB_STP_FAIL_CS_CONV_AC + servlev.RAB_STP_FAIL_CS_STREA_AC +</line270>
+					<line271>servlev.RAB_STP_FAIL_PS_CONV_AC + servlev.RAB_STP_FAIL_PS_STREA_AC +</line271>
+					<line272>servlev.RAB_STP_FAIL_PS_INTER_AC + servlev.RAB_STP_FAIL_PS_BACKG_AC +</line272>
+					<line273>servlev.RAB_STP_FAIL_CS_V_IUB_AAL2 + servlev.RAB_STP_FAIL_CS_CO_IUB_AAL2 +</line273>
+					<line274>servlev.RAB_STP_FAIL_CS_ST_IUB_AAL2 + servlev.RAB_STP_FAIL_PS_ST_IUB_AAL2) /</line274>
+					<line275>Sum(servlev.RAB_STP_ATT_CS_VOICE + servlev.RAB_STP_ATT_CS_CONV +</line275>
+					<line276>servlev.RAB_STP_ATT_CS_STREA + servlev.RAB_STP_ATT_PS_CONV +</line276>
+					<line277>servlev.RAB_STP_ATT_PS_STREA + servlev.RAB_STP_ATT_PS_INTER + servlev.RAB_STP_ATT_PS_BACKG))*100, 4) As 小区拥塞率,</line277>
+					<line278/>
+					<line279>Round(Decode(Sum(servlev.RAB_STP_ATT_CS_VOICE), 0, Null,</line279>
+					<line280>Sum(servlev.RAB_ACC_COMP_CS_VOICE) / (Sum(servlev.RAB_STP_ATT_CS_VOICE)))*100, 4) As 语音RAB建立成功率,</line280>
+					<line281/>
+					<line282/>
+					<line283/>
+					<line284>Round(decode(SUM(rrc.CELL_UPD_AFTER_PAG_CELL_PCH + rrc.CELL_UPD_AFTER_PAG_URA_PCH),Null,0,</line284>
+					<line285>(SUM(rrc.FAIL_PAG_NO_RESP_CELL_PCH + rrc.FAIL_PAG_NO_RESP_URA_PCH)/</line285>
+					<line286>SUM(rrc.CELL_UPD_AFTER_PAG_CELL_PCH + rrc.CELL_UPD_AFTER_PAG_URA_PCH)))*100, 4) As 小区寻呼拥塞率</line286>
+					<line287/>
+					<line288>From</line288>
+					<line289>NOKRWW_PS_SERVLEV_MNC1_RAW servlev</line289>
+					<line290/>
+					<line291>Left Join</line291>
+					<line292>NOKRWW_PS_RRC_MNC1_RAW rrc</line292>
+					<line293>ON servlev.period_start_time = rrc.period_start_time</line293>
+					<line294>--AND servlev.RNC_ID = rrc.RNC_ID</line294>
+					<line295>--AND servlev.WBTS_ID = rrc.WBTS_ID</line295>
+					<line296>AND servlev.WCEL_ID = rrc.WCEL_ID</line296>
+					<line297>AND rrc.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line297>
+					<line298>AND rrc.period_start_time &lt; To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line298>
+					<line299/>
+					<line300/>
+					<line301/>
+					<line302>LEFT JOIN</line302>
+					<line303>C_W_CUSTOM c</line303>
+					<line304>ON c.wcel_objid = servlev.WCEL_ID</line304>
+					<line305/>
+					<line306/>
+					<line307>WHERE</line307>
+					<line308>servlev.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line308>
+					<line309>AND servlev.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line309>
+					<line310>AND C.CITY IS NOT NULL</line310>
+					<line311/>
+					<line312>GROUP BY</line312>
+					<line313>--c.wcel_rnc_id ,</line313>
+					<line314>c.city ,</line314>
+					<line315>To_Date(To_Char(servlev.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line315>
+					<line316/>
+					<line317/>
+					<line318>) servlev,</line318>
+					<line319/>
+					<line320/>
+					<line321/>
+					<line322/>
+					<line323/>
+					<line324>(SELECT</line324>
+					<line325>-- c.wcel_rnc_id AS RNC_ID,</line325>
+					<line326>c.city AS CITY,</line326>
+					<line327>To_Date(To_Char(softho.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line327>
+					<line328/>
+					<line329>Round(Decode(Sum(softho.CELL_ADD_REQ_ON_SHO_FOR_RT +</line329>
+					<line330>softho.CELL_DEL_REQ_ON_SHO_FOR_RT + softho.CELL_REPL_REQ_ON_SHO_FOR_RT +</line330>
+					<line331>softho.CELL_ADD_REQ_ON_SHO_FOR_NRT + softho.CELL_DEL_REQ_ON_SHO_FOR_NRT +</line331>
+					<line332>softho.CELL_REPL_REQ_ON_SHO_FOR_NRT), 0, Null,</line332>
+					<line333>Sum(softho.SUCC_UPDATES_ON_SHO_FOR_RT + softho.SUCC_UPDATES_ON_SHO_FOR_NRT) /</line333>
+					<line334>Sum(softho.CELL_ADD_REQ_ON_SHO_FOR_RT + softho.CELL_DEL_REQ_ON_SHO_FOR_RT +</line334>
+					<line335>softho.CELL_REPL_REQ_ON_SHO_FOR_RT + softho.CELL_ADD_REQ_ON_SHO_FOR_NRT +</line335>
+					<line336>softho.CELL_DEL_REQ_ON_SHO_FOR_NRT + softho.CELL_REPL_REQ_ON_SHO_FOR_NRT))*100, 4) As 小区软切换成功率,</line336>
+					<line337> </line337>
+					<line338>    </line338>
+					<line339>round(decode(sum(softho.ONE_CELL_IN_ACT_SET_FOR_RT + softho.ONE_CELL_IN_ACT_SET_FOR_NRT +</line339>
+					<line340>    softho.TWO_CELLS_IN_ACT_SET_FOR_RT + softho.TWO_CELLS_IN_ACT_SET_FOR_NRT +</line340>
+					<line341>    softho.THREE_CELLS_IN_ACT_SET_RT + softho.THREE_CELLS_IN_ACT_SET_NRT) ,0,null,</line341>
+					<line342>    sum(softho.TWO_CELLS_IN_ACT_SET_FOR_RT + softho.TWO_CELLS_IN_ACT_SET_FOR_NRT +</line342>
+					<line343>    softho.THREE_CELLS_IN_ACT_SET_RT + softho.THREE_CELLS_IN_ACT_SET_NRT) /</line343>
+					<line344>    sum(softho.ONE_CELL_IN_ACT_SET_FOR_RT + softho.ONE_CELL_IN_ACT_SET_FOR_NRT +</line344>
+					<line345>    softho.TWO_CELLS_IN_ACT_SET_FOR_RT + softho.TWO_CELLS_IN_ACT_SET_FOR_NRT +</line345>
+					<line346>    softho.THREE_CELLS_IN_ACT_SET_RT + softho.THREE_CELLS_IN_ACT_SET_NRT))*100, 4) as 软切换比例</line346>
+					<line347/>
+					<line348> </line348>
+					<line349> </line349>
+					<line350> </line350>
+					<line351> </line351>
+					<line352> </line352>
+					<line353> </line353>
+					<line354> </line354>
+					<line355/>
+					<line356>From</line356>
+					<line357>NOKRWW_PS_SOFTHO_WCEL_DAY softho</line357>
+					<line358/>
+					<line359>LEFT JOIN</line359>
+					<line360>C_W_CUSTOM c</line360>
+					<line361>ON c.wcel_objid = softho.wcel_id</line361>
+					<line362/>
+					<line363/>
+					<line364>WHERE</line364>
+					<line365>softho.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line365>
+					<line366>AND softho.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line366>
+					<line367>AND C.CITY IS NOT NULL</line367>
+					<line368/>
+					<line369>GROUP BY</line369>
+					<line370>--c.wcel_rnc_id ,</line370>
+					<line371>c.city ,</line371>
+					<line372>To_Date(To_Char(softho.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line372>
+					<line373/>
+					<line374/>
+					<line375>) softho,</line375>
+					<line376/>
+					<line377/>
+					<line378/>
+					<line379>(SELECT</line379>
+					<line380>-- c.wcel_rnc_id AS RNC_ID,</line380>
+					<line381>c.city AS CITY,</line381>
+					<line382>To_Date(To_Char(traffic.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line382>
+					<line383/>
+					<line384>Round(SUM((traffic.DUR_FOR_AMR_4_75_UL_IN_SRNC+ traffic.DUR_FOR_AMR_5_15_UL_IN_SRNC +</line384>
+					<line385>traffic.DUR_FOR_AMR_5_9_UL_IN_SRNC+ traffic.DUR_FOR_AMR_6_7_UL_IN_SRNC+</line385>
+					<line386>traffic.DUR_FOR_AMR_7_4_UL_IN_SRNC+ traffic.DUR_FOR_AMR_7_95_UL_IN_SRNC+</line386>
+					<line387>traffic.DUR_FOR_AMR_10_2_UL_IN_SRNC+ traffic.DUR_FOR_AMR_12_2_UL_IN_SRNC)/(</line387>
+					<line388>traffic.PERIOD_DURATION*100*60)),2) As 语音含切话务量</line388>
+					<line389/>
+					<line390>From</line390>
+					<line391>NOKRWW_PS_TRAFFIC_MNC1_RAW traffic</line391>
+					<line392/>
+					<line393>LEFT JOIN</line393>
+					<line394>C_W_CUSTOM c</line394>
+					<line395>ON c.wcel_objid = traffic.wcel_id</line395>
+					<line396/>
+					<line397/>
+					<line398>WHERE</line398>
+					<line399>traffic.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line399>
+					<line400>AND traffic.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line400>
+					<line401>AND C.CITY IS NOT NULL</line401>
+					<line402/>
+					<line403>GROUP BY</line403>
+					<line404>--c.wcel_rnc_id ,</line404>
+					<line405>c.city ,</line405>
+					<line406>To_Date(To_Char(traffic.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line406>
+					<line407/>
+					<line408/>
+					<line409>) traffic,</line409>
+					<line410/>
+					<line411/>
+					<line412/>
+					<line413>(SELECT</line413>
+					<line414>-- c.wcel_rnc_id AS RNC_ID,</line414>
+					<line415>c.city AS CITY,</line415>
+					<line416>To_Date(To_Char(celltp.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;) AS PERIOD_START_TIME,</line416>
+					<line417/>
+					<line418>--Round(Sum(celltp.NRT_DCH_DL_DATA_VOL / 1000000), 8) As R99_DL数据吞吐量,</line418>
+					<line419>--(Sum((celltp.NRT_DCH_UL_DATA_VOL + celltp.NRT_DCH_HSDPA_UL_DATA_VOL) / 1000000), 8) As R99_UL数据吞吐量,</line419>
+					<line420>--Round(Sum(celltp.HS_DSCH_DATA_VOL / 1000000), 8) As HSDPA数据吞吐量,</line420>
+					<line421>--Round(Sum(celltp.NRT_EDCH_UL_DATA_VOL / 1000000), 8) As HSUPA数据吞吐量</line421>
+					<line422/>
+					<line423>Round(Sum(celltp.NRT_DCH_DL_DATA_VOL + celltp.HS_DSCH_DATA_VOL) / 1000000, 8) AS 数据下行MB,</line423>
+					<line424/>
+					<line425>Round(Sum(celltp.NRT_DCH_UL_DATA_VOL + celltp.NRT_DCH_HSDPA_UL_DATA_VOL +</line425>
+					<line426>celltp.NRT_EDCH_UL_DATA_VOL) / 1000000, 8) AS 数据上行MB</line426>
+					<line427>From</line427>
+					<line428>NOKRWW_PS_CELLTP_WCEL_DAY celltp</line428>
+					<line429/>
+					<line430>LEFT JOIN</line430>
+					<line431>C_W_CUSTOM c</line431>
+					<line432>ON c.wcel_objid = celltp.wcel_id</line432>
+					<line433/>
+					<line434/>
+					<line435>WHERE</line435>
+					<line436>celltp.period_start_time &gt;= To_Date(&amp;start_date, &apos;yyyy-mm-dd&apos;)</line436>
+					<line437>AND celltp.period_start_time &lt;  To_Date(&amp;end_date, &apos;yyyy-mm-dd&apos;)</line437>
+					<line438>AND C.CITY IS NOT NULL</line438>
+					<line439/>
+					<line440>GROUP BY</line440>
+					<line441>--c.wcel_rnc_id ,</line441>
+					<line442>c.city ,</line442>
+					<line443>To_Date(To_Char(celltp.PERIOD_START_TIME, &apos;yyyy-mm-dd&apos;), &apos;yyyy-mm-dd&apos;)</line443>
+					<line444/>
+					<line445/>
+					<line446>) celltp</line446>
+					<line447/>
+					<line448/>
+					<line449/>
+					<line450>WHERE</line450>
+					<line451>servlev.CITY = cellres.CITY AND servlev.PERIOD_START_TIME = cellres.PERIOD_START_TIME</line451>
+					<line452>AND softho.CITY = cellres.CITY AND softho.PERIOD_START_TIME = cellres.PERIOD_START_TIME</line452>
+					<line453>AND intsysho.CITY = cellres.CITY AND intsysho.PERIOD_START_TIME = cellres.PERIOD_START_TIME</line453>
+					<line454>AND traffic.CITY = cellres.CITY AND traffic.PERIOD_START_TIME = cellres.PERIOD_START_TIME</line454>
+					<line455>AND celltp.CITY = cellres.CITY AND celltp.PERIOD_START_TIME = cellres.PERIOD_START_TIME</line455>
+					<line456/>
+					<line457/>
+					<line458/>
+					<line459>order by</line459>
+					<line460>cellres.city</line460>
+					<line461/>
+				</Body>
+				<Hints/>
+				<Expert>
+					<Interval_count>0</Interval_count>
+					<alarm_if_indicated>false</alarm_if_indicated>
+					<show_alarm_in_tray>false</show_alarm_in_tray>
+					<first_show_as>0</first_show_as>
+					<PlaySound>false</PlaySound>
+					<show_notice>false</show_notice>
+					<belong_to_property/>
+					<repeat_for_each_property>false</repeat_for_each_property>
+					<Email>
+						<mailto>fuhuan118@163.com;zbg.baogang@163.com;tovi_jt@163.com;slsooner@126.com;18628498771@163.com;donghuibi@163.com;hzq_83@126.com;twoxu@163.com;liujianxun0801@163.com;ke.hu@nokia.com;guangcong.wen@nokia.com;li.zhang@huanuo-nokia.com;dong.1.xu@nokia.com;smnra@163.com</mailto>
+						<displayname>SO_Server</displayname>
+						<mailsubject>3G考核指标</mailsubject>
+						<force_mail_send>false</force_mail_send>
+						<zip_attachment>true</zip_attachment>
+						<attachment_format>0</attachment_format>
+						<records_in_mail>10</records_in_mail>
+						<skip_chart>true</skip_chart>
+						<chart_quality>50</chart_quality>
+						<chart_width>1440</chart_width>
+						<chart_height>1050</chart_height>
+						<fontsize>7</fontsize>
+						<max_chart_col>0</max_chart_col>
+						<upper_margin>.1</upper_margin>
+						<lower_margin>.1</lower_margin>
+					</Email>
+				</Expert>
+				<sub_scripts/>
+			</WCDMA_DAY>
+		</group1>
+	</Data>
+	<security>
+		<keys>
+			<private>
+				<Size>0</Size>
+				<Data/>
+			</private>
+			<public/>
+		</keys>
+	</security>
+</root>
