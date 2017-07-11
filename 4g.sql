@@ -1,21 +1,3 @@
-
---四个固定忙时 12 , 13, 22, 23时
-with busyhour AS (
-    SELECT 
-        lcellt.lncel_id AS lncel_id,
-        to_char(lcellt.period_start_time, 'yyyymmddhh24') AS pm_date_hour
-    FROM
-        NOKLTE_PS_LCELLT_LNCEL_HOUR lcellt
-    WHERE
-            lcellt.period_start_time >= to_date(&start_datetime,'yyyymmdd')
-        AND lcellt.period_start_time <  to_date(&end_datetime,'yyyymmdd')
-        AND to_char(lcellt.period_start_time,'hh24') in  ('12','13','22','23')
-    ORDER BY 
-    lcellt.lncel_id
-    )
---INNER JOIN busyhour ON busyhour.lncel_id = lpqul.lncel_id and busyhour.pm_date_hour = to_char(lpqul.period_start_time, 'yyyymmddhh24')
-
-
 SELECT
 
 
@@ -77,7 +59,8 @@ round(sum(tab1.LTE小区退服时长),2) AS LTE小区总退服时长s
 FROM
 (SELECT
 lcelav.lncel_id as lncel_id,
-lcelav.period_start_time AS pm_date,
+To_Date(To_Char(lcelav.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS pm_date,
+Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number) As hour,
 --c.lnbts_name AS lnbts_name,
 --c.version,
 (CASE
@@ -105,10 +88,16 @@ INNER JOIN C_LTE_CUSTOM c ON c.lncel_objid = lcelav.lncel_id and c.city is not n
 WHERE
 lcelav.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lcelav.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number) = 23 )
+
 
 GROUP BY
 lcelav.lncel_id,
-lcelav.period_start_time,
+To_Date(To_Char(lcelav.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') ,
+Cast(To_Char(lcelav.PERIOD_START_TIME, 'hh24') As Number),
 c.city,
 c.netmodel
 
@@ -165,7 +154,8 @@ sum(tab2.EPC_EPS_BEAR_REL_REQ_R_QCI1) AS  E_RAB异常释放_网络拥塞
 FROM
 (SELECT
 luest.lncel_id,
-luest.period_start_time pm_date,
+To_Date(To_Char(luest.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS pm_date,
+Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number) As hour,
 (CASE
 WHEN (c.city = 'Baoji' AND c.netmodel = 'FDD') THEN '宝鸡FDD'
 WHEN (c.city = 'Baoji' AND c.netmodel = 'TDD') THEN '宝鸡TDD'
@@ -226,14 +216,24 @@ INNER JOIN NOKLTE_PS_LEPSB_LNCEL_HOUR lepsb ON lepsb.lncel_id = luest.lncel_id
 AND lepsb.period_start_time = luest.period_start_time
 AND lepsb.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lepsb.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lepsb.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lepsb.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lepsb.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lepsb.PERIOD_START_TIME, 'hh24') As Number) = 23 )
+
 RIGHT JOIN C_LTE_CUSTOM c ON c.lncel_objid = luest.lncel_id and c.city is not null
-INNER JOIN busyhour ON busyhour.lncel_id = luest.lncel_id and busyhour.pm_date_hour = to_char(luest.period_start_time, 'yyyymmddhh24')
+
 WHERE
 luest.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND luest.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number) = 23 )
 
 GROUP BY
-luest.period_start_time,
+To_Date(To_Char(luest.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd'),
+Cast(To_Char(luest.PERIOD_START_TIME, 'hh24') As Number),
 luest.lncel_id,
 c.city,
 c.netmodel,
@@ -270,7 +270,8 @@ round(avg(tab3.平均每PRB干扰噪声功率),2) AS 平均每PRB干扰噪声功率
 FROM
 (SELECT
 lpqul.lncel_id,
-lpqul.period_start_time AS pm_date,
+To_Date(To_Char(lpqul.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS pm_date,
+Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number) As hour,
 --c.lnbts_name AS lnbts_name,
 --c.version,
 (CASE
@@ -343,12 +344,18 @@ round(sum(-10*(lpqul.SINR_PUSCH_LEVEL_1)-9*(lpqul.SINR_PUSCH_LEVEL_2)-7*(lpqul.S
 FROM
 NOKLTE_PS_LPQUL_LNCEL_hour lpqul
 INNER JOIN C_LTE_CUSTOM c ON c.lncel_objid = lpqul.lncel_id and c.city is not null
-INNER JOIN busyhour ON busyhour.lncel_id = lpqul.lncel_id and busyhour.pm_date_hour = to_char(lpqul.period_start_time, 'yyyymmddhh24')
+
 WHERE
 lpqul.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lpqul.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number) = 23 )
+
 GROUP BY
-lpqul.period_start_time，
+To_Date(To_Char(lpqul.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd'),
+Cast(To_Char(lpqul.PERIOD_START_TIME, 'hh24') As Number),
 lpqul.lncel_id,
 c.version,
 c.city,
@@ -384,7 +391,8 @@ sum(tab4.异频切换出成功次数) AS 异频切换出成功次数
 FROM
 (SELECT
 lianbho.lncel_id,
-lienbho.period_start_time AS pm_date,
+To_Date(To_Char(lianbho.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd')  AS pm_date,
+Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number) As hour,
 --c.lnbts_name AS lnbts_name,
 --c.version,
 (CASE
@@ -414,20 +422,36 @@ INNER JOIN NOKLTE_PS_LIANBHO_LNCEL_HOUR lianbho ON lienbho.lncel_id = lianbho.ln
 AND lienbho.period_start_time = lianbho.period_start_time
 AND lianbho.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lianbho.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number) = 23 )
+
+
 INNER JOIN NOKLTE_PS_LHO_LNCEL_HOUR lho ON lienbho.lncel_id = lho.lncel_id
 AND lienbho.period_start_time = lho.period_start_time
 AND lho.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lho.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lho.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lho.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lho.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lho.PERIOD_START_TIME, 'hh24') As Number) = 23 )
+    
 INNER JOIN C_LTE_CUSTOM c ON c.lncel_objid = lienbho.lncel_id and c.city is not null
-INNER JOIN busyhour ON busyhour.lncel_id = lienbho.lncel_id and busyhour.pm_date_hour = to_char(lienbho.period_start_time, 'yyyymmddhh24')
+
 
 WHERE
 lienbho.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lienbho.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lienbho.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lienbho.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lienbho.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lienbho.PERIOD_START_TIME, 'hh24') As Number) = 23 )
 
 GROUP BY
 lianbho.lncel_id,
-lienbho.period_start_time,
+To_Date(To_Char(lianbho.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') ,
+Cast(To_Char(lianbho.PERIOD_START_TIME, 'hh24') As Number),
 c.city,
 c.netmodel
 
@@ -442,6 +466,9 @@ tab4.区域
 
 ) tab4，
 
+
+
+
 (SELECT
 To_Date(To_Char(tab5.pm_date, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS DDATE,
 --   tab5.lncel_enb_id AS lncel_enb_id,
@@ -455,7 +482,8 @@ round(sum(tab5.空口下行业务字节数MB)/1024,2) AS 空口下行业务字节数MB ---MByte 单
 FROM
 (SELECT
 lcellt.lncel_id,
-lcellt.period_start_time AS pm_date,
+To_Date(To_Char(lcellt.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS pm_date,
+Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number) As hour,
 (CASE
 WHEN (c.city = 'Baoji' AND c.netmodel = 'FDD') THEN '宝鸡FDD'
 WHEN (c.city = 'Baoji' AND c.netmodel = 'TDD') THEN '宝鸡TDD'
@@ -479,13 +507,18 @@ SUM(PDCP_SDU_VOL_DL) / 1024 AS 空口下行业务字节数MB
 FROM
 NOKLTE_PS_LCELLT_LNCEL_HOUR lcellt
 INNER JOIN C_LTE_CUSTOM c ON c.lncel_objid = lcellt.lncel_id and c.city is not null
-INNER JOIN busyhour ON busyhour.lncel_id = lcellt.lncel_id and busyhour.pm_date_hour = to_char(lcellt.period_start_time, 'yyyymmddhh24')
+
 WHERE
 lcellt.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND lcellt.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
+and (Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number) = 12 or
+    Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number) = 13 or
+    Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number) = 22 or
+    Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number) = 23 )
 
 GROUP BY
-lcellt.period_start_time,
+To_Date(To_Char(lcellt.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd'),
+Cast(To_Char(lcellt.PERIOD_START_TIME, 'hh24') As Number),
 lcellt.lncel_id,
 c.city,
 c.netmodel
