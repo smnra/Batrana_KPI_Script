@@ -1,15 +1,17 @@
 SELECT
-(CASE
-WHEN cellres.city = 'Baoji' THEN '宝鸡'
-WHEN cellres.city = 'Xianyang' THEN '咸阳'
-WHEN cellres.city = 'Tongchuan' THEN '铜川'
-WHEN cellres.city = 'Hanzhong' THEN '汉中'
-WHEN cellres.city = 'Yulin' THEN '榆林'
-WHEN cellres.city = 'Yanan' THEN '延安'
-WHEN cellres.city = 'Shangluo' THEN '商洛'
-WHEN cellres.city = 'Other' THEN '其他'
-ELSE NULL END) as "地市",
 
+(CASE
+WHEN c.city = 'Baoji' THEN '宝鸡'
+WHEN c.city = 'Xianyang' THEN '咸阳'
+WHEN c.city = 'Tongchuan' THEN '铜川'
+WHEN c.city = 'Hanzhong' THEN '汉中'
+WHEN c.city = 'Yulin' THEN '榆林'
+WHEN c.city = 'Yanan' THEN '延安'
+WHEN c.city = 'Shangluo' THEN '商洛'
+WHEN c.city = 'Other' THEN '其他'
+ELSE NULL END) as "地市",
+ 
+--cellres.WCEL_ID,
 cellres.PERIOD_START_TIME AS "日期",
 --cellres.hour as hour,
 
@@ -60,21 +62,19 @@ round(decode(sum(servlev.小区寻呼拥塞率_Y),0,null,
 
 
 
-round(avg(traffic.语音含切话务量),2) AS "语音(ERL)",
+round(SUM(traffic.语音含切话务量)/4,2) AS "语音(ERL)",
 
-round(avg(celltp.数据下行MB),2) AS "数据下行(MB)",
+round(SUM(celltp.数据下行MB)/4,2) AS "数据下行(MB)",
 
-round(avg(celltp.数据上行MB),2) AS "数据上行(MB)"
+round(SUM(celltp.数据上行MB)/4,2) AS "数据上行(MB)"
 
 
 
 
 FROM
 (SELECT
---c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(cellres.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(cellres.PERIOD_START_TIME, 'hh24') As Number) As hour,
+cellres.WCEL_ID,
+cellres.PERIOD_START_TIME  AS PERIOD_START_TIME,
 
 Round(Avg(10 * Log(10, (((0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_0 / 10)) / 10) * cellres.PRXTOT_DENOM_0 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_1 / 10)) / 10) * cellres.PRXTOT_DENOM_1 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_2 / 10)) / 10) * cellres.PRXTOT_DENOM_2 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_3 / 10)) / 10) * cellres.PRXTOT_DENOM_3 + 0.001 * Power(10, ( -112 + (cellres.AVE_PRXTOT_CLASS_4 / 10)) / 10) * cellres.PRXTOT_DENOM_4) / Decode(cellres.PRXTOT_DENOM_0 + cellres.PRXTOT_DENOM_1 + cellres.PRXTOT_DENOM_2 + cellres.PRXTOT_DENOM_3 + cellres.PRXTOT_DENOM_4, 0, Null, cellres.PRXTOT_DENOM_0 + cellres.PRXTOT_DENOM_1 + cellres.PRXTOT_DENOM_2 + cellres.PRXTOT_DENOM_3 + cellres.PRXTOT_DENOM_4) + decode( (Power(10,(hsdpa.HSUPA_UL_PWR_AVG / 10)) / 1000 * hsdpa.HSUPA_UL_PWR_AVG) / Decode(hsdpa.HSUPA_UL_PWR_AVG, 0, Null, hsdpa.HSUPA_UL_PWR_AVG),null,0, (Power(10,(hsdpa.HSUPA_UL_PWR_AVG / 10)) / 1000 * hsdpa.HSUPA_UL_PWR_AVG) / Decode(hsdpa.HSUPA_UL_PWR_AVG, 0, Null
 , hsdpa.HSUPA_UL_PWR_AVG)) ) / 0.001))),8) AS 小区上行平均RTWP
@@ -90,27 +90,16 @@ ON cellres.period_start_time = hsdpa.period_start_time
 AND cellres.WCEL_ID = hsdpa.WCEL_ID
 AND hsdpa.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND hsdpa.period_start_time < To_Date(&end_date, 'yyyy-mm-dd')
-and (Cast(To_Char(hsdpa.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(hsdpa.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(hsdpa.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(hsdpa.PERIOD_START_TIME, 'hh24') As Number) = 21 )
 
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = cellres.wcel_id
+--LEFT JOIN C_W_CUSTOM c ON c.wcel_objid = cellres.wcel_id
 
 WHERE
 cellres.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND cellres.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND C.CITY IS NOT NULL
-and (Cast(To_Char(cellres.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(cellres.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(cellres.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(cellres.PERIOD_START_TIME, 'hh24') As Number) = 21 )
+--AND C.CITY IS NOT NULL
 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
+cellres.WCEL_ID,
 cellres.PERIOD_START_TIME
 
 ) cellres,
@@ -120,10 +109,8 @@ cellres.PERIOD_START_TIME
 
 
 (SELECT
--- c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(intsysho.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(intsysho.PERIOD_START_TIME, 'hh24') As Number) As hour,
+intsysho.WCEL_ID,
+intsysho.PERIOD_START_TIME  AS PERIOD_START_TIME,
 
 /* Round(decode(sum(intsysho.inter_hho_att_rt+intsysho.inter_hho_att_nrt),0, Null,
 (sum(intsysho.succ_inter_hho_att_rt+intsysho.succ_inter_hho_att_nrt)/
@@ -147,24 +134,12 @@ sum(intsysho.hho_att_caused_sho_incap_rt+intsysho.immed_hho_csd_sho_incap_rt+
 From
 Nokrww_Ps_Intsysho_Mnc1_Raw intsysho
 
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = intsysho.wcel_id
-
-
 WHERE
 intsysho.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND intsysho.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND C.CITY IS NOT NULL
-and (Cast(To_Char(intsysho.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(intsysho.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(intsysho.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(intsysho.PERIOD_START_TIME, 'hh24') As Number) = 21 )
-
 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
+intsysho.WCEL_ID,
 intsysho.PERIOD_START_TIME
 
 ) intsysho,
@@ -175,10 +150,9 @@ intsysho.PERIOD_START_TIME
 
 
 (SELECT
--- c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(servlev.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(servlev.PERIOD_START_TIME, 'hh24') As Number) As hour,
+servlev.WCEL_ID,
+servlev.PERIOD_START_TIME  AS PERIOD_START_TIME,
+
 
 /* Round(Decode(Sum(servlev.RRC_CONN_STP_ATT + servlev.RRC_CONN_SETUP_COMP_AFT_DIR
 - servlev.RRC_CONN_STP_REJ_EMERG_CALL - servlev.RRC_CONN_ACC_REL_CELL_RESEL -
@@ -390,37 +364,18 @@ NOKRWW_PS_SERVLEV_MNC1_RAW servlev
 Left Join
 NOKRWW_PS_RRC_MNC1_RAW rrc
 ON servlev.period_start_time = rrc.period_start_time
---AND servlev.RNC_ID = rrc.RNC_ID
---AND servlev.WBTS_ID = rrc.WBTS_ID
 AND servlev.WCEL_ID = rrc.WCEL_ID
 AND rrc.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND rrc.period_start_time < To_Date(&end_date, 'yyyy-mm-dd')
-and (Cast(To_Char(rrc.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(rrc.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(rrc.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(rrc.PERIOD_START_TIME, 'hh24') As Number) = 21 )
-
-
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = servlev.WCEL_ID
-
 
 WHERE
 servlev.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND servlev.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND C.CITY IS NOT NULL
-and (Cast(To_Char(servlev.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(servlev.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(servlev.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(servlev.PERIOD_START_TIME, 'hh24') As Number) = 21 )
 
 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
+servlev.WCEL_ID,
 servlev.PERIOD_START_TIME
-
 
 ) servlev,
 
@@ -429,10 +384,8 @@ servlev.PERIOD_START_TIME
 
 
 (SELECT
--- c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(softho.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(softho.PERIOD_START_TIME, 'hh24') As Number) As hour,
+softho.WCEL_ID,
+softho.PERIOD_START_TIME  AS PERIOD_START_TIME,
 /* 
 Round(Decode(Sum(softho.CELL_ADD_REQ_ON_SHO_FOR_RT +
     softho.CELL_DEL_REQ_ON_SHO_FOR_RT + softho.CELL_REPL_REQ_ON_SHO_FOR_RT +
@@ -471,35 +424,21 @@ sum((nvl((softho.ONE_CELL_IN_ACT_SET_FOR_RT + softho.ONE_CELL_IN_ACT_SET_FOR_NRT
 From
 NOKRWW_PS_SOFTHO_MNC1_RAW softho
 
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = softho.wcel_id
-
-
 WHERE
 softho.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND softho.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND C.CITY IS NOT NULL
-and (Cast(To_Char(softho.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(softho.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(softho.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(softho.PERIOD_START_TIME, 'hh24') As Number) = 21 )
 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
-softho.PERIOD_START_TIME
-
+softho.WCEL_ID,
+softho.PERIOD_START_TIME 
 
 ) softho,
 
 
 
 (SELECT
--- c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(traffic.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(traffic.PERIOD_START_TIME, 'hh24') As Number) As hour,
+traffic.WCEL_ID,
+traffic.PERIOD_START_TIME  AS PERIOD_START_TIME,
 
 round(SUM((traffic.DUR_FOR_AMR_4_75_UL_IN_SRNC+ traffic.DUR_FOR_AMR_5_15_UL_IN_SRNC +
 traffic.DUR_FOR_AMR_5_9_UL_IN_SRNC+ traffic.DUR_FOR_AMR_6_7_UL_IN_SRNC+
@@ -512,34 +451,21 @@ traffic.PERIOD_DURATION*100*60)),2) As 语音含切话务量
 From
 NOKRWW_PS_TRAFFIC_MNC1_RAW traffic
 
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = traffic.wcel_id
-
-
 WHERE
 traffic.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND traffic.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND c.city IS  NOT NULL
-and (Cast(To_Char(traffic.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(traffic.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(traffic.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(traffic.PERIOD_START_TIME, 'hh24') As Number) = 21 )
 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
-traffic.PERIOD_START_TIME
+traffic.WCEL_ID,
+traffic.PERIOD_START_TIME 
 
 ) traffic,
 
 
 
 (SELECT
--- c.wcel_rnc_id AS RNC_ID,
-c.city AS CITY,
-To_Date(To_Char(celltp.PERIOD_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd') AS PERIOD_START_TIME,
-Cast(To_Char(celltp.PERIOD_START_TIME, 'hh24') As Number) As hour,
+celltp.WCEL_ID,
+celltp.PERIOD_START_TIME  AS PERIOD_START_TIME,
 
 --Round(Sum(celltp.NRT_DCH_DL_DATA_VOL / 1000000), 8) As R99_DL数据吞吐量,
 --(Sum((celltp.NRT_DCH_UL_DATA_VOL + celltp.NRT_DCH_HSDPA_UL_DATA_VOL) / 1000000), 8) As R99_UL数据吞吐量,
@@ -553,40 +479,32 @@ celltp.NRT_EDCH_UL_DATA_VOL) / 1000000, 8) AS 数据上行MB
 From
 NOKRWW_PS_CELLTP_MNC1_RAW celltp
 
-LEFT JOIN
-C_W_CUSTOM c
-ON c.wcel_objid = celltp.wcel_id
-
-
 WHERE
 celltp.period_start_time >= To_Date(&start_date, 'yyyy-mm-dd')
 AND celltp.period_start_time <  To_Date(&end_date, 'yyyy-mm-dd')
-AND C.CITY IS NOT NULL
-and (Cast(To_Char(celltp.PERIOD_START_TIME, 'hh24') As Number) = 11 or
-     Cast(To_Char(celltp.PERIOD_START_TIME, 'hh24') As Number) = 12 or
-     Cast(To_Char(celltp.PERIOD_START_TIME, 'hh24') As Number) = 20 or
-     Cast(To_Char(celltp.PERIOD_START_TIME, 'hh24') As Number) = 21 )
-
+ 
 GROUP BY
---c.wcel_rnc_id ,
-c.city ,
-celltp.PERIOD_START_TIME
+    celltp.WCEL_ID,
+    celltp.PERIOD_START_TIME
 
-) celltp
+) celltp,
+
+
+c_w_Custom c
+
 
 
 
 WHERE
-servlev.CITY = cellres.CITY AND servlev.PERIOD_START_TIME = cellres.PERIOD_START_TIME and servlev.hour = cellres.hour
-AND softho.CITY = cellres.CITY AND softho.PERIOD_START_TIME = cellres.PERIOD_START_TIME and softho.hour = cellres.hour
-AND intsysho.CITY = cellres.CITY AND intsysho.PERIOD_START_TIME = cellres.PERIOD_START_TIME and intsysho.hour = cellres.hour
-AND traffic.CITY = cellres.CITY AND traffic.PERIOD_START_TIME = cellres.PERIOD_START_TIME and traffic.hour = cellres.hour
-AND celltp.CITY = cellres.CITY AND celltp.PERIOD_START_TIME = cellres.PERIOD_START_TIME and celltp.hour = cellres.hour
+    servlev.PERIOD_START_TIME = cellres.PERIOD_START_TIME and servlev.WCEL_ID = cellres.WCEL_ID
+AND softho.PERIOD_START_TIME = cellres.PERIOD_START_TIME and softho.WCEL_ID = cellres.WCEL_ID
+AND intsysho.PERIOD_START_TIME = cellres.PERIOD_START_TIME and intsysho.WCEL_ID = cellres.WCEL_ID
+AND traffic.PERIOD_START_TIME = cellres.PERIOD_START_TIME and traffic.WCEL_ID = cellres.WCEL_ID
+AND celltp.PERIOD_START_TIME = cellres.PERIOD_START_TIME and celltp.WCEL_ID = cellres.WCEL_ID
 
+AND c.wcel_objid = cellres.WCEL_ID 
 
 GROUP BY
-cellres.city,
+--cellres.WCEL_ID,
+c.city,
 cellres.PERIOD_START_TIME
-
-order by
-    cellres.city
